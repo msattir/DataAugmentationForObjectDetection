@@ -133,7 +133,7 @@ def rotate_im(image, angle):
     M[1, 2] += (nH / 2) - cY
 
     # perform the actual rotation and return the image
-    image = cv2.warpAffine(image, M, (nW, nH))
+    image = cv2.warpAffine(image, M, (nW, nH), borderValue=(128,128,128))
 
 #    image = cv2.resize(image, (w,h))
     return image
@@ -293,7 +293,7 @@ def letterbox_image(img, inp_dim):
     new_h = int(img_h * min(w/img_w, h/img_h))
     resized_image = cv2.resize(img, (new_w,new_h))
     
-    canvas = np.full((inp_dim[1], inp_dim[0], 3), 0)
+    canvas = np.full((inp_dim[1], inp_dim[0], 3), 128)
 
     canvas[(h-new_h)//2:(h-new_h)//2 + new_h,(w-new_w)//2:(w-new_w)//2 + new_w,  :] = resized_image
     

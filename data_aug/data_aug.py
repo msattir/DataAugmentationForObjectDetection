@@ -159,7 +159,7 @@ class RandomScale(object):
         
         
         
-        canvas = np.zeros(img_shape, dtype = np.uint8)
+        canvas = np.full(img_shape, 128, dtype = np.uint8)
         
         y_lim = int(min(resize_scale_y,1)*img_shape[0])
         x_lim = int(min(resize_scale_x,1)*img_shape[1])
@@ -224,7 +224,7 @@ class Scale(object):
         
         
         
-        canvas = np.zeros(img_shape, dtype = np.uint8)
+        canvas = np.full(img_shape, 128, dtype = np.uint8)
         
         y_lim = int(min(resize_scale_y,1)*img_shape[0])
         x_lim = int(min(resize_scale_x,1)*img_shape[1])
@@ -296,7 +296,7 @@ class RandomTranslate(object):
         if not self.diff:
             translate_factor_y = translate_factor_x
             
-        canvas = np.zeros(img_shape).astype(np.uint8)
+        canvas = np.full(img_shape, 128, dtype=np.uint8)
     
     
         corner_x = int(translate_factor_x*img.shape[1])
@@ -373,7 +373,7 @@ class Translate(object):
         translate_factor_y = self.translate_y
         
             
-        canvas = np.zeros(img_shape).astype(np.uint8)
+        canvas = np.full(img_shape, 128, dtype=np.uint8)
 
         
         #get the top-left corner co-ordinates of the shifted box 
@@ -607,7 +607,7 @@ class RandomShear(object):
         bboxes[:,[0,2]] += ((bboxes[:,[1,3]]) * abs(shear_factor) ).astype(int) 
     
     
-        img = cv2.warpAffine(img, M, (int(nW), img.shape[0]))
+        img = cv2.warpAffine(img, M, (int(nW), img.shape[0]), borderValue=(128,128,128))
     
         if shear_factor < 0:
         	img, bboxes = HorizontalFlip()(img, bboxes)
