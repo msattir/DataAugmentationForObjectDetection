@@ -12,7 +12,8 @@ if len(sys.argv) != 2:
    exit(0)
 
 path =""
-prefix_path = "../yolo_dataset2/yolo_thesis/datasets/bdd-tiny/train/images/"
+#prefix_path = "../yolo_dataset2/yolo_thesis/datasets/bdd-tiny/train/images/"
+prefix_path="./"
 if os.path.exists(prefix_path+str(sys.argv[1])):
     path = os.path.abspath(prefix_path+str(sys.argv[1]))
 else:
@@ -20,7 +21,8 @@ else:
     exit(0)
 
 
-out_path="/home/msattir/Thesis/yolo_dataset2/yolo_thesis/datasets/bdd-tiny-augm/train/"
+#out_path="/home/msattir/Thesis/yolo_dataset2/yolo_thesis/datasets/bdd-tiny-augm/train/"
+out_path = "./gen/"
 tmp = path.rsplit('/', 2)
 image = tmp[2]
 label_path = tmp[0]+"/labels/"+tmp[2].replace('jpg', 'txt')
