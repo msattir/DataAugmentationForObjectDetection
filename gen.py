@@ -22,17 +22,20 @@ else:
 
 
 #out_path="/home/msattir/Thesis/yolo_dataset2/yolo_thesis/datasets/bdd-tiny-augm/train/"
-out_path = "./gen/"
+out_path = "./coco/"
 tmp = path.rsplit('/', 2)
 image = tmp[2]
 label_path = tmp[0]+"/labels/"+tmp[2].replace('jpg', 'txt')
-img = cv2.imread(path)[:,:,::-1]
+img = cv2.imread(path)#[:,:,::-1]
 bboxes = np.genfromtxt(label_path, delimiter=',')
+
+bboxes[:,2] += bboxes[:,0]
+bboxes[:,3] += bboxes[:,1]
 
 i = 1
 
 while (i<=10):
-    rand = randint(1,8)
+    rand = i#randint(1,8)
     if rand == 1:
        img_, bboxes_ = RandomHorizontalFlip(1)(img.copy(), bboxes.copy())
        cv2.imwrite((out_path+'images/'+image.split('.')[0]+'_{}').format(i)+'.jpg', img_)

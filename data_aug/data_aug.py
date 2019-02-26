@@ -47,6 +47,10 @@ class RandomHorizontalFlip(object):
                 bboxes[:, 0] -= box_w
                 bboxes[:, 2] += box_w
 
+                #bboxes[:,4::3] = (bboxes[0,4::3] - 1*(bboxes[0,4::3] != 0)*np.repeat(img_center[0], bboxes[0,4::3].shape))*-1 + 1*(bboxes[0,4::3] != 0)*np.repeat(img_center[0], bboxes[0,4::3].shape)
+
+                bboxes[:,4::3] = (bboxes[:,4::3] - 1*(bboxes[0,4::3] != 0) *(np.ones(bboxes[:,4::3].shape)*img_center[0]))*-1 + 1*(bboxes[0,4::3] != 0) * (np.ones(bboxes[:,4::3].shape)*img_center[0])
+
             return img, bboxes
 
 
@@ -87,6 +91,7 @@ class HorizontalFlip(object):
         bboxes[:, 0] -= box_w
         bboxes[:, 2] += box_w
 
+        bboxes[:,4::3] = (bboxes[:,4::3] - 1*(bboxes[0,4::3] != 0) *(np.ones(bboxes[:,4::3].shape)*img_center[0]))*-1 + 1*(bboxes[0,4::3] != 0) * (np.ones(bboxes[:,4::3].shape)*img_center[0])
         return img, bboxes
 
 
@@ -156,7 +161,11 @@ class RandomScale(object):
         img=  cv2.resize(img, None, fx = resize_scale_x, fy = resize_scale_y)
         
         bboxes[:,:4] *= [resize_scale_x, resize_scale_y, resize_scale_x, resize_scale_y]
+        resize_m = [resize_scale_x, resize_scale_y, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
         
+        bboxes[:,4:-1] *= resize_mask
         
         
         canvas = np.full(img_shape, 128, dtype = np.uint8)
@@ -169,6 +178,7 @@ class RandomScale(object):
         
         img = canvas
         bboxes = clip_box(bboxes, [0,0,1 + img_shape[1], img_shape[0]], 0.25)
+        bboxes = clip_keypoints(bboxes)
     
     
         return img, bboxes
@@ -220,8 +230,13 @@ class Scale(object):
         
         img=  cv2.resize(img, None, fx = resize_scale_x, fy = resize_scale_y)
         
-        bboxes[:,:4] *= [resize_scale_x, resize_scale_y, resize_scale_x, resize_scale_y]
         
+        bboxes[:,:4] *= [resize_scale_x, resize_scale_y, resize_scale_x, resize_scale_y]
+        resize_m = [resize_scale_x, resize_scale_y, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        bboxes[:,4:-1] *= resize_mask
         
         
         canvas = np.full(img_shape, 128, dtype = np.uint8)
@@ -234,6 +249,7 @@ class Scale(object):
         
         img = canvas
         bboxes = clip_box(bboxes, [0,0,1 + img_shape[1], img_shape[0]], 0.25)
+        bboxes = clip_keypoints(bboxes)
 
     
         return img, bboxes  
@@ -307,8 +323,6 @@ class RandomTranslate(object):
         #change the origin to the top-left corner of the translated box
         orig_box_cords =  [max(0,corner_y), max(corner_x,0), min(img_shape[0], corner_y + img.shape[0]), min(img_shape[1],corner_x + img.shape[1])]
     
-        
-        
     
         mask = img[max(-corner_y, 0):min(img.shape[0], -corner_y + img_shape[0]), max(-corner_x, 0):min(img.shape[1], -corner_x + img_shape[1]),:]
         canvas[orig_box_cords[0]:orig_box_cords[2], orig_box_cords[1]:orig_box_cords[3],:] = mask
@@ -316,8 +330,14 @@ class RandomTranslate(object):
         
         bboxes[:,:4] += [corner_x, corner_y, corner_x, corner_y]
         
+        resize_m = [corner_x, corner_y, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        bboxes[:,4:-1] =bboxes[:,4:-1] + resize_mask
         
         bboxes = clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)
+        bboxes = clip_keypoints(bboxes)
         
     
         
@@ -394,8 +414,14 @@ class Translate(object):
         
         bboxes[:,:4] += [corner_x, corner_y, corner_x, corner_y]
         
+        resize_m = [corner_x, corner_y, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        bboxes[:,4:-1] =bboxes[:,4:-1] + resize_mask
         
         bboxes = clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)
+        bboxes = clip_keypoints(bboxes)
         
 
         
@@ -456,6 +482,7 @@ class RandomRotate(object):
     
     
         corners[:,:8] = rotate_box(corners[:,:8], angle, cx, cy, h, w)
+        corners[:,8:-1] = rotate_point(corners, angle, cx, cy, h, w)
     
         new_bbox = get_enclosing_box(corners)
     
@@ -468,9 +495,17 @@ class RandomRotate(object):
     
         new_bbox[:,:4] /= [scale_factor_x, scale_factor_y, scale_factor_x, scale_factor_y] 
     
-        bboxes  = new_bbox
     
+        resize_m = [scale_factor_x, scale_factor_y, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        new_bbox[:,4:-1] = new_bbox[:,4:-1] / resize_mask
+        
+        bboxes = new_bbox
+
         bboxes = clip_box(bboxes, [0,0,w, h], 0.25)
+        bboxes = clip_keypoints(bboxes)
     
         return img, bboxes
 
@@ -530,6 +565,7 @@ class Rotate(object):
         
         corners[:,:8] = rotate_box(corners[:,:8], angle, cx, cy, h, w)
         
+        corners[:,8:-1] = rotate_point(corners, angle, cx, cy, h, w)
         
         
         
@@ -544,10 +580,16 @@ class Rotate(object):
         
         new_bbox[:,:4] /= [scale_factor_x, scale_factor_y, scale_factor_x, scale_factor_y] 
         
+        resize_m = [scale_factor_x, scale_factor_y, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        new_bbox[:,4:-1] = new_bbox[:,4:-1] / resize_mask
         
         bboxes  = new_bbox
 
         bboxes = clip_box(bboxes, [0,0,w, h], 0.25)
+        bboxes = clip_keypoints(bboxes)
         
         return img, bboxes
         
@@ -593,7 +635,7 @@ class RandomShear(object):
         
     def __call__(self, img, bboxes):
     
-        shear_factor = random.uniform(*self.shear_factor)
+        shear_factor = abs(random.uniform(*self.shear_factor))
     
         w,h = img.shape[1], img.shape[0]
     
@@ -603,9 +645,11 @@ class RandomShear(object):
         M = np.array([[1, abs(shear_factor), 0],[0,1,0]])
     
         nW =  img.shape[1] + abs(shear_factor*img.shape[0])
+        n_bboxes = bboxes[:,:-1] 
+        n_bboxes[:,[0,2]] += ((n_bboxes[:,[1,3]]) * abs(shear_factor) ).astype(int)
+        n_bboxes[:,4::3] +=  ((n_bboxes[:,5::3]) * abs(shear_factor) ).astype(int)
     
-        bboxes[:,[0,2]] += ((bboxes[:,[1,3]]) * abs(shear_factor) ).astype(int) 
-    
+        bboxes[:,:-1] = n_bboxes
     
         img = cv2.warpAffine(img, M, (int(nW), img.shape[0]), borderValue=(128,128,128))
     
@@ -617,6 +661,12 @@ class RandomShear(object):
         scale_factor_x = nW / w
     
         bboxes[:,:4] /= [scale_factor_x, 1, scale_factor_x, 1] 
+ 
+        resize_m = [scale_factor_x, 1, 1]
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        bboxes[:,4:-1] = bboxes[:,4:-1] / resize_mask
     
     
         return img, bboxes
@@ -652,7 +702,7 @@ class Shear(object):
     
     def __call__(self, img, bboxes):
         
-        shear_factor = self.shear_factor
+        shear_factor = abs(self.shear_factor)
         if shear_factor < 0:
             img, bboxes = HorizontalFlip()(img, bboxes)
 
@@ -661,7 +711,11 @@ class Shear(object):
                 
         nW =  img.shape[1] + abs(shear_factor*img.shape[0])
         
-        bboxes[:,[0,2]] += ((bboxes[:,[1,3]])*abs(shear_factor)).astype(int) 
+        n_bboxes = bboxes[:,:-1] 
+        n_bboxes[:,[0,2]] += ((n_bboxes[:,[1,3]]) * abs(shear_factor) ).astype(int)
+        n_bboxes[:,4::3] +=  ((n_bboxes[:,5::3]) * abs(shear_factor) ).astype(int)
+    
+        bboxes[:,:-1] = n_bboxes
         
 
         img = cv2.warpAffine(img, M, (int(nW), img.shape[0]))
@@ -719,6 +773,12 @@ class Resize(object):
     
         bboxes[:,:4] += add_matrix
     
+        resize_m = np.array([del_w, del_h, 1]).astype(int)
+        resize_m = np.array(resize_m)
+        resize_mask = np.tile(resize_m, 17)
+        
+        bboxes[:,4:-1] = bboxes[:,4:-1] + resize_mask
+
         img = img.astype(np.uint8)
     
         return img, bboxes 
@@ -806,6 +866,7 @@ class RandomHSV(object):
         
         img = np.clip(img, 0, 255)
         img[:,:,0] = np.clip(img[:,:,0],0, 179)
+        bboxes = clip_keypoints(bboxes)
         
         img = img.astype(np.uint8)
 

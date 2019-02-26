@@ -89,6 +89,29 @@ def clip_box(bbox, clip_box, alpha):
     return bbox
 
 
+def clip_keypoints(n_bbox):
+    bbox = n_bbox[:,:-1]
+    for i in range(bbox.shape[0]):
+        a=(bbox[i,0] < bbox[i,4::3] ).astype(int).repeat(2).reshape(-1,2)
+        mask=np.hstack((a, np.ones((a.shape[0],1), dtype = type(a[0][0])))).reshape(-1,51).squeeze()
+        bbox[i,4:] *= mask
+
+        a=(bbox[i,2] > bbox[i,4::3] ).astype(int).repeat(2).reshape(-1,2)
+        mask=np.hstack((a, np.ones((a.shape[0],1), dtype = type(a[0][0])))).reshape(-1,51).squeeze()
+        bbox[i,4:] *= mask
+ 
+        a=(bbox[i,1] < bbox[i,5::3] ).astype(int).repeat(2).reshape(-1,2)
+        mask=np.hstack((a, np.ones((a.shape[0],1), dtype = type(a[0][0])))).reshape(-1,51).squeeze()
+        bbox[i,4:] *= mask
+
+        
+        a=(bbox[i,3] > bbox[i,5::3] ).astype(int).repeat(2).reshape(-1,2)
+        mask=np.hstack((a, np.ones((a.shape[0],1), dtype = type(a[0][0])))).reshape(-1,51).squeeze()
+        bbox[i,4:] *= mask
+ 
+    n_bbox[:,:-1] = bbox
+    return n_bbox
+ 
 def rotate_im(image, angle):
     """Rotate the image.
     
@@ -232,6 +255,74 @@ def rotate_box(corners,angle,  cx, cy, h, w):
     calculated = calculated.reshape(-1,8)
     
     return calculated
+
+
+def rotate_point(corners, angle,  cx, cy, h, w):
+    
+    """Rotate the bounding box.
+    
+    
+    Parameters
+    ----------
+    
+    corners : numpy.ndarray
+        Numpy array of shape `N x 8` containing N bounding boxes each described by their 
+        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+    
+    angle : float
+        angle by which the image is to be rotated
+        
+    cx : int
+        x coordinate of the center of image (about which the box will be rotated)
+        
+    cy : int
+        y coordinate of the center of image (about which the box will be rotated)
+        
+    h : int 
+        height of the image
+        
+    w : int 
+        width of the image
+    
+    Returns
+    -------
+    
+    numpy.ndarray
+        Numpy array of shape `N x 8` containing N rotated bounding boxes each described by their 
+        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+    """
+
+    old_corners = corners
+    corners = corners[:,:8].reshape(-1,2)
+    corners = np.hstack((corners, np.ones((corners.shape[0],1), dtype = type(corners[0][0]))))
+    
+    M = cv2.getRotationMatrix2D((cx, cy), angle, 1.0)
+    
+    
+    cos = np.abs(M[0, 0])
+    sin = np.abs(M[0, 1])
+    
+    nW = int((h * sin) + (w * cos))
+    nH = int((h * cos) + (w * sin))
+    # adjust the rotation matrix to take into account translation
+    M[0, 2] += (nW / 2) - cx
+    M[1, 2] += (nH / 2) - cy
+      
+    # Prepare the vector to be transformed
+    points = old_corners[:,8:-1]
+    points_x = points[:,0::3]
+    points_y = points[:,1::3]
+    xy_points = np.dstack((points_x,points_y)).reshape(points_x.shape[0],-1)
+    xy_points = xy_points.reshape(-1,2)
+    xy_points = np.hstack((xy_points, np.ones((xy_points.shape[0],1), dtype = type(xy_points[0][0]))))
+  
+    calculated = np.dot(M,xy_points.T).T
+    
+    calculated = calculated.reshape(-1,34)
+    points[:,0::3] = calculated[:,0::2]
+    points[:,1::3] = calculated[:,1::2]
+
+    return points
 
 
 def get_enclosing_box(corners):

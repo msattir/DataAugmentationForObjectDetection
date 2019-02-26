@@ -36,11 +36,12 @@ fontColor              = (255,255,255)
 lineType               = 1
 
 for i in range(0,det.shape[0]):
-    cv2.rectangle(img, (det[i,0],det[i,1]), (det[i,2]+det[i,0],det[i,3]+det[i,1]), (0, 255, 0), 2)
+    cv2.rectangle(img, (det[i,0],det[i,1]), (det[i,2],det[i,3]), (0, 255, 0), 2)
     det2=det[i,4:]
     for j in range(0,51,3):
         cv2.circle(img, (det2[j],det2[j+1]), 2, (0,255,0))
         cv2.putText(img, "{}".format(int(j/3)), (det2[j],det2[j+1]), font, fontScale, fontColor, lineType)
 
-cv2.imshow('fig1', img)
+
+cv2.imshow('fig_{}'.format(path.rsplit('.',1)[0].rsplit('_',1)[1]), img)
 cv2.waitKey(0)
