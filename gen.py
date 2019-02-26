@@ -14,6 +14,8 @@ if len(sys.argv) != 2:
 path =""
 #prefix_path = "../yolo_dataset2/yolo_thesis/datasets/bdd-tiny/train/images/"
 prefix_path="./"
+prefix_path="../yolo_masks/yolo_thesis/datasets/coco-masks-tiny/train/images/"
+
 if os.path.exists(prefix_path+str(sys.argv[1])):
     path = os.path.abspath(prefix_path+str(sys.argv[1]))
 else:
@@ -23,11 +25,15 @@ else:
 
 #out_path="/home/msattir/Thesis/yolo_dataset2/yolo_thesis/datasets/bdd-tiny-augm/train/"
 out_path = "./coco/"
+out_path = "../yolo_masks/yolo_thesis/datasets/coco-masks-agum/train/"
 tmp = path.rsplit('/', 2)
 image = tmp[2]
 label_path = tmp[0]+"/labels/"+tmp[2].replace('jpg', 'txt')
 img = cv2.imread(path)#[:,:,::-1]
 bboxes = np.genfromtxt(label_path, delimiter=',')
+
+if bboxes.ndim == 1:
+    bboxes = bboxes.reshape(1,-1)
 
 bboxes[:,2] += bboxes[:,0]
 bboxes[:,3] += bboxes[:,1]
