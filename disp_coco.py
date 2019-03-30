@@ -12,7 +12,7 @@ import numpy as np
 
 path =""
 #prefix_path = "../yolo_dataset2/yolo_thesis/datasets/bdd-tiny/train/images/"
-prefix_path="./"
+prefix_path="./coco/images/"
 if os.path.exists(prefix_path+str(sys.argv[1])):
     path = os.path.abspath(prefix_path+str(sys.argv[1]))
 else:
@@ -43,5 +43,5 @@ for i in range(0,det.shape[0]):
         cv2.putText(img, "{}".format(int(j/3)), (det2[j],det2[j+1]), font, fontScale, fontColor, lineType)
 
 
-cv2.imshow('fig_{}'.format(path.rsplit('.',1)[0].rsplit('_',1)[1]), img)
-cv2.waitKey(0)
+cv2.imwrite('fig_{}.jpg'.format(path.rsplit('.',1)[0].rsplit('_',1)[1]), img)
+#cv2.waitKey(0)

@@ -15,7 +15,7 @@ path =""
 #prefix_path = "../yolo_dataset2/yolo_thesis/datasets/bdd-tiny/train/images/"
 prefix_path="./"
 prefix_path="../yolo_masks/yolo_thesis/datasets/coco-masks-tiny/train/images/"
-
+#prefix_path="/home/eceftl9/Thesis/bdd-dataset/bdd-small/train/images/"
 if os.path.exists(prefix_path+str(sys.argv[1])):
     path = os.path.abspath(prefix_path+str(sys.argv[1]))
 else:
@@ -26,6 +26,8 @@ else:
 #out_path="/home/msattir/Thesis/yolo_dataset2/yolo_thesis/datasets/bdd-tiny-augm/train/"
 out_path = "./coco/"
 out_path = "../yolo_masks/yolo_thesis/datasets/coco-masks-agum/train/"
+#out_path = "/home/eceftl9/Thesis/bdd-dataset/bdd-small-augm/train/"
+
 tmp = path.rsplit('/', 2)
 image = tmp[2]
 label_path = tmp[0]+"/labels/"+tmp[2].replace('jpg', 'txt')
