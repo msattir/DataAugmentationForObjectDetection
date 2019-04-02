@@ -13,6 +13,9 @@ if len(sys.argv) != 2:
 
 path =""
 prefix_path = "../yolo_dataset2/yolo_thesis/datasets/bdd-tiny/train/images/"
+prefix_path = "/home/eceftl9/Thesis/bdd-dataset/bdd-small/train/images/"
+prefix_path = "/home/eceftl9/Thesis/bosch-dataset/full/images/"
+
 if os.path.exists(prefix_path+str(sys.argv[1])):
     path = os.path.abspath(prefix_path+str(sys.argv[1]))
 else:
@@ -21,15 +24,24 @@ else:
 
 
 out_path="/home/msattir/Thesis/yolo_dataset2/yolo_thesis/datasets/bdd-tiny-augm/train/"
+out_path="/home/eceftl9/Thesis/bdd-dataset/bdd-small-augm/train/"
+out_path="/home/eceftl9/Thesis/bosch-dataset/bosch-augm/train/"
+
 tmp = path.rsplit('/', 2)
 image = tmp[2]
-label_path = tmp[0]+"/labels/"+tmp[2].replace('jpg', 'txt')
+label_path = tmp[0]+"/labels/"+tmp[2].replace('png', 'txt').replace("I1", "L1")
 img = cv2.imread(path)[:,:,::-1]
 bboxes = np.genfromtxt(label_path, delimiter=',')
 
+if bboxes.ndim == 1:
+    bboxes = bboxes.reshape(1,-1)
+
 i = 1
 
+print (path)
+
 while (i<=10):
+    #print (i)
     rand = randint(1,8)
     if rand == 1:
        img_, bboxes_ = RandomHorizontalFlip(1)(img.copy(), bboxes.copy())
