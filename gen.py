@@ -36,13 +36,17 @@ bboxes = np.genfromtxt(label_path, delimiter=',')
 if bboxes.ndim == 1:
     bboxes = bboxes.reshape(1,-1)
 
+bboxes[:,2] += bboxes[:,0]
+bboxes[:,3] += bboxes[:,1]
+
+
 i = 1
 
 print (path)
 
 while (i<=10):
     #print (i)
-    rand = randint(1,8)
+    rand = i#randint(1,8)
     if rand == 1:
        img_, bboxes_ = RandomHorizontalFlip(1)(img.copy(), bboxes.copy())
        cv2.imwrite((out_path+'images/'+image.split('.')[0]+'_{}').format(i)+'.jpg', img_)
@@ -84,6 +88,7 @@ while (i<=10):
        cv2.imwrite((out_path+'images/'+image.split('.')[0]+'_{}').format(i)+'.jpg', img_)
        np.savetxt((out_path+'labels/'+image.split('.')[0]+'_{}').format(i)+'.txt', bboxes_, delimiter=',')
        i += 1
-    #plotted_img = draw_rect(img_, bboxes_)
-    #plt.imshow(plotted_img)
-    #plt.show()
+    print (bboxes_)
+    plotted_img = draw_rect(img_, bboxes_)
+    plt.imshow(plotted_img)
+    plt.show()
