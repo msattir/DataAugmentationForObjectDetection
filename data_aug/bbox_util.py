@@ -90,7 +90,7 @@ def clip_box(bbox, clip_box, alpha):
 
 
 def clip_keypoints(n_bbox):
-    bbox = n_bbox[:,:-1]
+    bbox = n_bbox#[:,:-1]
     for i in range(bbox.shape[0]):
         a=(bbox[i,0] < bbox[i,4::3] ).astype(int).repeat(2).reshape(-1,2)
         mask=np.hstack((a, np.ones((a.shape[0],1), dtype = type(a[0][0])))).reshape(-1,51).squeeze()
@@ -109,7 +109,7 @@ def clip_keypoints(n_bbox):
         mask=np.hstack((a, np.ones((a.shape[0],1), dtype = type(a[0][0])))).reshape(-1,51).squeeze()
         bbox[i,4:] *= mask
  
-    n_bbox[:,:-1] = bbox
+    n_bbox[:,:] = bbox
     return n_bbox
  
 def rotate_im(image, angle):
@@ -309,7 +309,7 @@ def rotate_point(corners, angle,  cx, cy, h, w):
     M[1, 2] += (nH / 2) - cy
       
     # Prepare the vector to be transformed
-    points = old_corners[:,8:-1]
+    points = old_corners[:,8:]
     points_x = points[:,0::3]
     points_y = points[:,1::3]
     xy_points = np.dstack((points_x,points_y)).reshape(points_x.shape[0],-1)

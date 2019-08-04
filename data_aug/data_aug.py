@@ -165,7 +165,7 @@ class RandomScale(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        bboxes[:,4:-1] *= resize_mask
+        bboxes[:,4:] *= resize_mask
         
         
         canvas = np.full(img_shape, 128, dtype = np.uint8)
@@ -236,7 +236,7 @@ class Scale(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        bboxes[:,4:-1] *= resize_mask
+        bboxes[:,4:] *= resize_mask
         
         
         canvas = np.full(img_shape, 128, dtype = np.uint8)
@@ -334,7 +334,7 @@ class RandomTranslate(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        bboxes[:,4:-1] =bboxes[:,4:-1] + resize_mask
+        bboxes[:,4:] =bboxes[:,4:] + resize_mask
         
         bboxes = clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)
         bboxes = clip_keypoints(bboxes)
@@ -418,7 +418,7 @@ class Translate(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        bboxes[:,4:-1] =bboxes[:,4:-1] + resize_mask
+        bboxes[:,4:] =bboxes[:,4:] + resize_mask
         
         bboxes = clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)
         bboxes = clip_keypoints(bboxes)
@@ -482,7 +482,7 @@ class RandomRotate(object):
     
     
         corners[:,:8] = rotate_box(corners[:,:8], angle, cx, cy, h, w)
-        corners[:,8:-1] = rotate_point(corners, angle, cx, cy, h, w)
+        corners[:,8:] = rotate_point(corners, angle, cx, cy, h, w)
     
         new_bbox = get_enclosing_box(corners)
     
@@ -500,7 +500,7 @@ class RandomRotate(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        new_bbox[:,4:-1] = new_bbox[:,4:-1] / resize_mask
+        new_bbox[:,4:] = new_bbox[:,4:] / resize_mask
         
         bboxes = new_bbox
 
@@ -565,7 +565,7 @@ class Rotate(object):
         
         corners[:,:8] = rotate_box(corners[:,:8], angle, cx, cy, h, w)
         
-        corners[:,8:-1] = rotate_point(corners, angle, cx, cy, h, w)
+        corners[:,8:] = rotate_point(corners, angle, cx, cy, h, w)
         
         
         
@@ -584,7 +584,7 @@ class Rotate(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        new_bbox[:,4:-1] = new_bbox[:,4:-1] / resize_mask
+        new_bbox[:,4:] = new_bbox[:,4:] / resize_mask
         
         bboxes  = new_bbox
 
@@ -666,7 +666,7 @@ class RandomShear(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        bboxes[:,4:-1] = bboxes[:,4:-1] / resize_mask
+        bboxes[:,4:] = bboxes[:,4:] / resize_mask
     
     
         return img, bboxes
@@ -777,7 +777,7 @@ class Resize(object):
         resize_m = np.array(resize_m)
         resize_mask = np.tile(resize_m, 17)
         
-        bboxes[:,4:-1] = bboxes[:,4:-1] + resize_mask
+        bboxes[:,4:] = bboxes[:,4:-1] + resize_mask
 
         img = img.astype(np.uint8)
     
